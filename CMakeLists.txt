@@ -32,6 +32,7 @@ set(PROJECT_SOURCES
         info.h
         info.cpp
         info.ui
+        pal.xml
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

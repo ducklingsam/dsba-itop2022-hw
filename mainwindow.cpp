@@ -28,7 +28,7 @@ void MainWindow::paintEvent(QPaintEvent *event) {
 
     rCircle.moveCenter(rect().center());
     wCircle.moveCenter(rect().center());
-    painter.setPen(QPen(Qt::black, 2, Qt::SolidLine, Qt::FlatCap));
+    painter.setPen(QPen(Qt::black, 5, Qt::SolidLine, Qt::FlatCap));
     painter.setBrush(QBrush(Qt::red, Qt::SolidPattern));
     painter.drawEllipse(rCircle);
     painter.setBrush(QBrush(Qt::white, Qt::SolidPattern));

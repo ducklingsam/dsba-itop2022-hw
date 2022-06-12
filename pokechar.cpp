@@ -46,10 +46,10 @@ void pokeChar::createTable() {
     bool flag = false;
     model = new QStandardItemModel(0, 0, this);
     model->setHorizontalHeaderItem(0, new QStandardItem("Name"));
-    QString fileName = QString::fromStdString("/Users/obozhenov/Desktop/DSBA/1y/cpp/updData.csv");
+    QString fileName = QString::fromStdString("updData.csv");
     if (!fileExists(fileName)) {
         flag = true;
-        fileName = QString::fromStdString("/Users/obozhenov/Desktop/DSBA/1y/cpp/pokemonGO.csv");
+        fileName = QString::fromStdString("pokemonGO.csv");
     }
     QFile file(fileName);
     file.open(QIODevice::ReadOnly);
