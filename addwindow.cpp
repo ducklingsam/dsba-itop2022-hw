@@ -21,14 +21,13 @@ void addWindow::setModelPointer(Pokemon *poke, QStandardItemModel* model) {
 
 void addWindow::on_addButton_clicked()
 {
-    this->poke->number = model->rowCount();
+    this->poke->number = model->rowCount() + 1;
     this->poke->name = ui->nameInput->text().toStdString();
     this->poke->ftype = ui->ftypeInput->text().toStdString();
     this->poke->stype = ui->stypeInput->text().toStdString();
     this->poke->cp = ui->cpInput->text().toInt();
     this->poke->hp = ui->hpInput->text().toInt();
-    this->poke->url = "No URL added";
-
+    this->poke->url = "";
     int row = model->rowCount();
     model->insertRows(row, 1);
     QModelIndex index = model->index(row, 0, QModelIndex());

@@ -3,13 +3,14 @@
 #include "addwindow.h"
 #include "pokeinfo.h"
 
+#include <QFileInfo>
 #include <QFileDialog>
+#include <QMessageBox>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <fstream>
 #include <sstream>
-#include <map>
 
 using std::getline;
 using std::string;
@@ -27,22 +28,8 @@ pokeChar::pokeChar(QWidget *parent) :
     proxyModel = new class proxyModel();
     proxyModel -> setSourceModel(model);
     ui->nameTable->setModel(proxyModel);
-
     ui->nameTable->setSortingEnabled(true);
     ui->nameTable->sortByColumn(1, Qt::SortOrder::AscendingOrder);
-
-    ui->minCpSpin->setMinimum(0);
-    ui->minCpSpin->setMaximum(50000000);
-    ui->minCpSpin->setValue(0);
-    ui->maxCpSpin->setMinimum(0);
-    ui->maxCpSpin->setMaximum(50000000);
-    ui->maxCpSpin->setValue(0);
-    ui->minHpSpin->setMinimum(0);
-    ui->minHpSpin->setMaximum(50000000);
-    ui->minHpSpin->setValue(0);
-    ui->maxHpSpin->setMinimum(0);
-    ui->maxHpSpin->setMaximum(50000000);
-    ui->maxHpSpin->setValue(0);
 }
 
 pokeChar::~pokeChar()
@@ -50,13 +37,23 @@ pokeChar::~pokeChar()
     delete ui;
 }
 
+bool fileExists(QString file) {
+    QFileInfo check(file);
+    return check.exists() && check.isFile();
+}
+
 void pokeChar::createTable() {
+    bool flag = false;
     model = new QStandardItemModel(0, 0, this);
     model->setHorizontalHeaderItem(0, new QStandardItem("Name"));
-    QString fileName = QString::fromStdString("/Users/obozhenov/Desktop/DSBA/1y/cpp/pokemonGO.csv");
+    QString fileName = QString::fromStdString("/Users/obozhenov/Desktop/DSBA/1y/cpp/updData.csv");
+    if (!fileExists(fileName)) {
+        flag = true;
+        fileName = QString::fromStdString("/Users/obozhenov/Desktop/DSBA/1y/cpp/pokemonGO.csv");
+    }
     QFile file(fileName);
     file.open(QIODevice::ReadOnly);
-    file.readLine();
+    if (flag) file.readLine();
     while(!file.atEnd()) {
         string token;
         string line = file.readLine().toStdString();
@@ -92,6 +89,7 @@ void pokeChar::createTable() {
         if (p[i].ftype == "Psychic" or p[i].stype == "Psychic") psy++;
         if (p[i].stype != "") tt++;
     }
+    std::cout << p.size();
     ui->taLabel->setText(QString::number(p.size()));
     ui->wLabel->setText(QString::number(water));
     ui->nLabel->setText(QString::number(norm));
@@ -105,7 +103,25 @@ void pokeChar::createTable() {
 
 void pokeChar::on_mainButton_clicked()
 {
-    close();
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setText("Are you sure you want to quit?");
+    msgBox.setInformativeText("All unsaved data will be deleted!");
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::No);
+    QPalette pal;
+    pal.setColor(QPalette::Window, Qt::black);
+    msgBox.setPalette(pal);
+    int ans = msgBox.exec();
+    switch(ans) {
+        case QMessageBox::Yes: {
+            this->close();
+            break;
+        }
+        case QMessageBox::No: {
+            break;
+        }
+    }
 }
 
 
@@ -131,7 +147,7 @@ void pokeChar::on_deleteButton_clicked()
 void pokeChar::on_nameTable_clicked(const QModelIndex &index)
 {
     string pokemonName = (index.data().toString()).toStdString();
-    string url;
+    string url = "No URL added";
     for (int i = 0; i < p.size(); i++) {
         if (p[i].name == pokemonName) {
             ui->num->setText(QString::number(p[i].number));
@@ -139,40 +155,17 @@ void pokeChar::on_nameTable_clicked(const QModelIndex &index)
             ui->stype->setText(QString::fromStdString(p[i].stype));
             ui->cp->setText(QString::number(p[i].cp));
             ui->hp->setText(QString::number(p[i].hp));
-            url = string("<a href=\"") + p[i].url + string("\">Click Here</a>");
-            std::cout << url;
-            ui->url->setTextInteractionFlags(Qt::LinksAccessibleByMouse);
-            ui->url->setOpenExternalLinks(true);
-            ui->url->setTextFormat(Qt::RichText);
+            if (p[i].url != "") {
+                url = string("<a href=\"") + p[i].url + string("\">Click Here</a>");
+                ui->url->setTextInteractionFlags(Qt::LinksAccessibleByMouse);
+                ui->url->setOpenExternalLinks(true);
+                ui->url->setTextFormat(Qt::RichText);
+            }
             ui->url->setText(QString::fromStdString(url));
 
         }
     }
 }
-
-void pokeChar::on_minCpSpin_valueChanged(int arg1)
-{
-    proxyModel->setMinCP(ui->minCpSpin->text().toInt());
-}
-
-void pokeChar::on_maxCpSpin_valueChanged(int arg1)
-{
-    proxyModel->setMaxCP(ui->maxCpSpin->text().toInt());
-}
-
-
-
-void pokeChar::on_minHpSpin_valueChanged(int arg1)
-{
-    proxyModel->setMinHP(ui->minHpSpin->text().toInt());
-}
-
-
-void pokeChar::on_maxHpSpin_valueChanged(int arg1)
-{
-    proxyModel->setMaxHP(ui->maxHpSpin->text().toInt());
-}
-
 
 void pokeChar::on_updateButton_clicked()
 {
@@ -196,5 +189,39 @@ void pokeChar::on_updateButton_clicked()
     ui->flLabel->setText(QString::number(fly));
     ui->psyLabel->setText(QString::number(psy));
     ui->ttLabel->setText(QString::number(tt));
+    QFile file("/Users/obozhenov/Desktop/DSBA/1y/cpp/updData.csv");
+    if (file.open(QFile::WriteOnly|QFile::Text)) {
+        QTextStream stream(&file);
+        for (int i = 0; i < p.size(); i++) {
+            stream << p[i].number << ',' << QString::fromStdString(p[i].name) << ',' << QString::fromStdString(p[i].ftype) << ',' << QString::fromStdString(p[i].stype)
+                   << ',' << p[i].cp << ',' << p[i].hp << ',' << QString::fromStdString(p[i].url) << '\n';
+        }
+    }
+}
+
+
+void pokeChar::on_resetButton_clicked()
+{
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setText("This dataset will be deleted");
+    msgBox.setInformativeText("Are you sure you want to proceed?\nYou will be returned to the main window");
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::No);
+    QPalette pal;
+    pal.setColor(QPalette::Window, Qt::black);
+    msgBox.setPalette(pal);
+    int ans = msgBox.exec();
+    switch(ans) {
+        case QMessageBox::Yes: {
+            QFile file("/Users/obozhenov/Desktop/DSBA/1y/cpp/updData.csv");
+            file.remove();
+            this->close();
+            break;
+        }
+        case QMessageBox::No: {
+            break;
+        }
+    }
 }
 

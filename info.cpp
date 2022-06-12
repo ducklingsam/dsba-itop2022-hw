@@ -1,6 +1,7 @@
 #include "info.h"
 #include "ui_info.h"
 #include <QMessageBox>
+#include <QColor>
 
 info::info(QWidget *parent) :
     QDialog(parent),
@@ -16,7 +17,11 @@ info::~info()
 
 void info::on_pushButton_clicked()
 {
-    QMessageBox::information(this, "About", "Created by\n© Bozhenov Oleg\n2022");
+    QMessageBox msgBox(QMessageBox::Information, "About", "Created by\n©Student №178\n2022");
+    QPalette pal;
+    pal.setColor(QPalette::Window, Qt::black);
+    msgBox.setPalette(pal);
+    msgBox.exec();
 }
 
 void info::on_pushButton_2_clicked()

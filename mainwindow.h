@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QPainter>
 #include "pokechar.h"
 #include "infowindow.h"
 
@@ -17,10 +18,14 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+protected:
+
 private slots:
     void on_startButton_clicked();
 
     void on_infoButton_clicked();
+
+    void paintEvent(QPaintEvent *event);
 
 private:
     Ui::MainWindow *ui;

@@ -23,7 +23,6 @@ public:
     explicit pokeChar(QWidget *parent = nullptr);
     ~pokeChar();
     void createTable();
-    void cntPoke();
     vector<Pokemon> p;
 
 private slots:
@@ -35,16 +34,9 @@ private slots:
 
     void on_nameTable_clicked(const QModelIndex &index);
 
-    void on_minCpSpin_valueChanged(int arg1);
-
-
-    void on_maxCpSpin_valueChanged(int arg1);
-
-    void on_minHpSpin_valueChanged(int arg1);
-
-    void on_maxHpSpin_valueChanged(int arg1);
-
     void on_updateButton_clicked();
+
+    void on_resetButton_clicked();
 
 private:
     Ui::pokeChar *ui;

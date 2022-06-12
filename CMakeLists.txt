@@ -22,19 +22,16 @@ set(PROJECT_SOURCES
         pokechar.cpp
         pokechar.ui
         pokechar.h
-        info.cpp
-        info.h
-        info.ui
         pokemonGO.csv
         pokemon.h
         addwindow.cpp
         addwindow.h
         addwindow.ui
-        pokeinfo.cpp
-        pokeinfo.h
-        pokeinfo.ui
         proxymodel.cpp
         proxymodel.h
+        info.h
+        info.cpp
+        info.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

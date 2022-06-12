@@ -1,4 +1,5 @@
 #include "proxymodel.h"
+#include <iostream>
 
 proxyModel::proxyModel(QObject* parent)
     : QSortFilterProxyModel(parent)
@@ -31,15 +32,6 @@ void proxyModel::setMaxHP(int maxHP)
 {
     this->maxHP = maxHP;
     invalidateFilter();
-}
-
-bool proxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
-{
-
-    QString lenA = sourceModel()->data(left).toString();
-    QString lenB = sourceModel()->data(right).toString();
-
-    return lenA < lenB;
 }
 
 bool proxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
