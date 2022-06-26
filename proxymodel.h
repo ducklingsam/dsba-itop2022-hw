@@ -1,6 +1,7 @@
 #ifndef PROXYMODEL_H
 #define PROXYMODEL_H
-#include <QSortFilterProxyModel>
+
+#include "includesAndStd.h"
 
 class proxyModel: public QSortFilterProxyModel
 {

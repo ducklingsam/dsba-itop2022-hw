@@ -1,7 +1,7 @@
 #ifndef INFO_H
 #define INFO_H
 
-#include <QDialog>
+#include "includesAndStd.h"
 
 namespace Ui {
 class info;

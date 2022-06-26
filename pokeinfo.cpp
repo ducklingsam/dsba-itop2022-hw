@@ -1,12 +1,9 @@
 #include "pokeinfo.h"
 #include "ui_pokeinfo.h"
 #include "pokechar.h"
-#include <vector>
-#include <string>
 #include "pokemon.h"
-#include <iostream>
+#include "includesAndStd.h"
 
-using std::to_string;
 
 pokeInfo::pokeInfo(QWidget *parent) :
     QDialog(parent),

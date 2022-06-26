@@ -1,9 +1,7 @@
 #ifndef POKEMON_H
 #define POKEMON_H
 
-#include <string>
-
-using std::string;
+#include "includesAndStd.h"
 
 struct Pokemon {
     int number;

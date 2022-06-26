@@ -33,6 +33,7 @@ set(PROJECT_SOURCES
         info.cpp
         info.ui
         pal.xml
+        includesAndStd.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

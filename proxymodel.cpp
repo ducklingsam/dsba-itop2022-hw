@@ -1,5 +1,5 @@
 #include "proxymodel.h"
-#include <iostream>
+#include "includesAndStd.h"
 
 proxyModel::proxyModel(QObject* parent)
     : QSortFilterProxyModel(parent)

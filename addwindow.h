@@ -17,10 +17,18 @@ public:
     explicit addWindow(QWidget *parent = nullptr);
     ~addWindow();
     void setModelPointer(Pokemon *poke, QStandardItemModel* model);
+    string ft;
+    string st;
 
 private slots:
 
     void on_addButton_clicked();
+
+//    void on_ftypeInput_textActivated(const QString &arg1);
+
+    void on_ftypeInput_currentTextChanged(const QString &arg1);
+
+    void on_comboBox_currentTextChanged(const QString &arg1);
 
 private:
     Ui::addWindow *ui;

@@ -2,22 +2,7 @@
 #include "ui_pokechar.h"
 #include "addwindow.h"
 #include "pokeinfo.h"
-
-#include <QFileInfo>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <iostream>
-#include <string>
-#include <vector>
-#include <fstream>
-#include <sstream>
-
-using std::getline;
-using std::string;
-using std::ifstream;
-using std::string; using std::stoi;
-using std::ostringstream; using std::istringstream;
-using std::map; using std::vector;
+#include "includesAndStd.h"
 
 pokeChar::pokeChar(QWidget *parent) :
     QDialog(parent),
@@ -37,23 +22,62 @@ pokeChar::~pokeChar()
     delete ui;
 }
 
-bool fileExists(QString file) {
-    QFileInfo check(file);
-    return check.exists() && check.isFile();
+map<string, int> cntTypes(vector<Pokemon> p) {
+    map<string, int> types;
+    for (int i = 0; i < p.size(); i++) {
+        if (p[i].ftype != "") {
+            map<string, int>::iterator it(types.find(p[i].ftype));
+            if (it != types.end()) {
+                it->second++;
+            } else {
+                types[p[i].ftype] = 1;
+            }
+        }
+    }
+    for (int i = 0; i < p.size(); i++) {
+        if (p[i].stype != "") {
+            map<string, int>::iterator it(types.find(p[i].stype));
+            if (it != types.end()) {
+                it->second++;
+            } else {
+                types[p[i].stype] = 1;
+            }
+        }
+    }
+    for (auto it = types.begin(); it != types.end(); it++) {
+        std::cout << it->first << " " << it->second << '\n';
+    }
+    return types;
+}
+
+void pokeChar::info(vector<Pokemon> p) {
+    infomod = new QStandardItemModel(0, 2, this);
+    infomod->setHorizontalHeaderItem(0, new QStandardItem("Type"));
+    infomod->setHorizontalHeaderItem(1, new QStandardItem("Amount"));
+    ui->tableView->setModel(infomod);
+    map<string, int> types = cntTypes(p);
+    int cnt = 0, total = 0;
+    for (auto it = types.begin(); it != types.end(); it++) {
+        infomod->insertRow(cnt);
+        infomod->setData(infomod->index(cnt,0), QString::fromStdString(it->first));
+        total += it->second;
+        infomod->setData(infomod->index(cnt, 1), QString::number(it->second));
+        cnt++;
+    }
+    ui->ta->setText(QString::number(p.size()));
 }
 
 void pokeChar::createTable() {
     bool flag = false;
+
+    // preparing treeView for data
     model = new QStandardItemModel(0, 0, this);
     model->setHorizontalHeaderItem(0, new QStandardItem("Name"));
-    QString fileName = QString::fromStdString("updData.csv");
-    if (!fileExists(fileName)) {
-        flag = true;
-        fileName = QString::fromStdString("pokemonGO.csv");
-    }
+    QString fileName = QFileDialog::getOpenFileName(this, "Select a file to open...", "/", "(*.csv)");
     QFile file(fileName);
     file.open(QIODevice::ReadOnly);
-    if (flag) file.readLine();
+    file.readLine();
+    // reading .csv and pass it to the struct Po vector
     while(!file.atEnd()) {
         string token;
         string line = file.readLine().toStdString();
@@ -73,46 +97,34 @@ void pokeChar::createTable() {
         po.url = lineAsVector[6];
         p.push_back(po);
     }
-    file.close();
+
+    file.close(); // close the file
+
+    // insert parsed data to the treeView
     for (int i = 0; i < p.size(); i++) {
         model->insertRow(i);
         model->setData(model->index(i, 0), QString::fromStdString(p[i].name));
     }
-    int water = 0, norm = 0, poi = 0, grass = 0, fire = 0, fly = 0, psy = 0, tt = 0;
-    for (int i = 0; i < p.size(); i++) {
-        if (p[i].ftype == "Water" or p[i].stype == "Water") water++;
-        if (p[i].ftype == "Normal" or p[i].stype == "Normal") norm++;
-        if (p[i].ftype == "Poison" or p[i].stype == "Poison") poi++;
-        if (p[i].ftype == "Grass" or p[i].stype == "Grass") grass++;
-        if (p[i].ftype == "Fire" or p[i].stype == "Fire") fire++;
-        if (p[i].ftype == "Flying" or p[i].stype == "Flying") fly++;
-        if (p[i].ftype == "Psychic" or p[i].stype == "Psychic") psy++;
-        if (p[i].stype != "") tt++;
-    }
-    std::cout << p.size();
-    ui->taLabel->setText(QString::number(p.size()));
-    ui->wLabel->setText(QString::number(water));
-    ui->nLabel->setText(QString::number(norm));
-    ui->pLabel->setText(QString::number(poi));
-    ui->gLabel->setText(QString::number(grass));
-    ui->fiLabel->setText(QString::number(fire));
-    ui->flLabel->setText(QString::number(fly));
-    ui->psyLabel->setText(QString::number(psy));
-    ui->ttLabel->setText(QString::number(tt));
+
+    info(p);
 }
 
 void pokeChar::on_mainButton_clicked()
 {
+    // warn the user about the consequences
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Warning);
     msgBox.setText("Are you sure you want to quit?");
     msgBox.setInformativeText("All unsaved data will be deleted!");
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     msgBox.setDefaultButton(QMessageBox::No);
+
     QPalette pal;
     pal.setColor(QPalette::Window, Qt::black);
     msgBox.setPalette(pal);
-    int ans = msgBox.exec();
+
+    int ans = msgBox.exec(); // get the answer of the user
+
     switch(ans) {
         case QMessageBox::Yes: {
             this->close();
@@ -133,6 +145,10 @@ void pokeChar::on_addButton_clicked()
     add.setModelPointer(&p[p.size() - 1], model);
     add.setModal(true);
     add.exec();
+    for (int i = 0; i < p.size(); i++) {
+        std::cout << p[i].name << '\n';
+    }
+    info(p);
 }
 
 void pokeChar::on_deleteButton_clicked()
@@ -141,9 +157,10 @@ void pokeChar::on_deleteButton_clicked()
     this->model->removeRows(selectedRow, 1);
     vector<Pokemon>::iterator it = this->p.begin() + selectedRow;
     this->p.erase(it);
+    info(p);
 }
 
-
+// put details of the pokemon into labels
 void pokeChar::on_nameTable_clicked(const QModelIndex &index)
 {
     string pokemonName = (index.data().toString()).toStdString();
@@ -155,43 +172,27 @@ void pokeChar::on_nameTable_clicked(const QModelIndex &index)
             ui->stype->setText(QString::fromStdString(p[i].stype));
             ui->cp->setText(QString::number(p[i].cp));
             ui->hp->setText(QString::number(p[i].hp));
-            if (p[i].url != "") {
+            if (p[i].url != "") { // there is no option to paste link into new pokemons, check link avability
                 url = string("<a href=\"") + p[i].url + string("\">Click Here</a>");
                 ui->url->setTextInteractionFlags(Qt::LinksAccessibleByMouse);
                 ui->url->setOpenExternalLinks(true);
                 ui->url->setTextFormat(Qt::RichText);
             }
             ui->url->setText(QString::fromStdString(url));
-
         }
     }
 }
 
+// update button creates new .csv file and puts updated info about quantity
 void pokeChar::on_updateButton_clicked()
 {
-    int water = 0, norm = 0, poi = 0, grass = 0, fire = 0, fly = 0, psy = 0, tt = 0;
-    for (int i = 0; i < p.size(); i++) {
-        if (p[i].ftype == "Water" or p[i].stype == "Water") water++;
-        if (p[i].ftype == "Normal" or p[i].stype == "Normal") norm++;
-        if (p[i].ftype == "Poison" or p[i].stype == "Poison") poi++;
-        if (p[i].ftype == "Grass" or p[i].stype == "Grass") grass++;
-        if (p[i].ftype == "Fire" or p[i].stype == "Fire") fire++;
-        if (p[i].ftype == "Flying" or p[i].stype == "Flying") fly++;
-        if (p[i].ftype == "Psychic" or p[i].stype == "Psychic") psy++;
-        if (p[i].stype != "") tt++;
-    }
-    ui->taLabel->setText(QString::number(p.size()));
-    ui->wLabel->setText(QString::number(water));
-    ui->nLabel->setText(QString::number(norm));
-    ui->pLabel->setText(QString::number(poi));
-    ui->gLabel->setText(QString::number(grass));
-    ui->fiLabel->setText(QString::number(fire));
-    ui->flLabel->setText(QString::number(fly));
-    ui->psyLabel->setText(QString::number(psy));
-    ui->ttLabel->setText(QString::number(tt));
-    QFile file("/Users/obozhenov/Desktop/DSBA/1y/cpp/updData.csv");
+    updDir = QFileDialog::getSaveFileName(nullptr, "updData", "/", "CSV (*.csv)");
+
+    QFile file(updDir); //create new file
+    // parse from vector to .csv
     if (file.open(QFile::WriteOnly|QFile::Text)) {
         QTextStream stream(&file);
+        stream << "Pokemon No.," << "Name," << "Type 1," << "Type 2," << "Max CP," << "Max HP," << "Image URL\n";
         for (int i = 0; i < p.size(); i++) {
             stream << p[i].number << ',' << QString::fromStdString(p[i].name) << ',' << QString::fromStdString(p[i].ftype) << ',' << QString::fromStdString(p[i].stype)
                    << ',' << p[i].cp << ',' << p[i].hp << ',' << QString::fromStdString(p[i].url) << '\n';
@@ -199,7 +200,7 @@ void pokeChar::on_updateButton_clicked()
     }
 }
 
-
+// deletes updated dataset
 void pokeChar::on_resetButton_clicked()
 {
     QMessageBox msgBox;
@@ -208,13 +209,15 @@ void pokeChar::on_resetButton_clicked()
     msgBox.setInformativeText("Are you sure you want to proceed?\nYou will be returned to the main window");
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     msgBox.setDefaultButton(QMessageBox::No);
+
     QPalette pal;
     pal.setColor(QPalette::Window, Qt::black);
     msgBox.setPalette(pal);
+
     int ans = msgBox.exec();
     switch(ans) {
         case QMessageBox::Yes: {
-            QFile file("/Users/obozhenov/Desktop/DSBA/1y/cpp/updData.csv");
+            QFile file(updDir);
             file.remove();
             this->close();
             break;

@@ -1,7 +1,6 @@
 #include "info.h"
 #include "ui_info.h"
-#include <QMessageBox>
-#include <QColor>
+#include "includesAndStd.h"
 
 info::info(QWidget *parent) :
     QDialog(parent),

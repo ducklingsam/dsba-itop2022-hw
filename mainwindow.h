@@ -1,8 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
-#include <QPainter>
+#include "includesAndStd.h"
 #include "pokechar.h"
 #include "infowindow.h"
 

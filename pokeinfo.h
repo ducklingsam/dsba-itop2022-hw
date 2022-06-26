@@ -1,8 +1,7 @@
 #ifndef POKEINFO_H
 #define POKEINFO_H
 
-#include <QDialog>
-#include <vector>
+#include "includesAndStd.h"
 #include "pokemon.h"
 
 namespace Ui {

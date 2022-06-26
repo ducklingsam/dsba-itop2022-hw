@@ -1,9 +1,7 @@
 #ifndef POKECHAR_H
 #define POKECHAR_H
 
-#include <QDialog>
-#include <QStandardItemModel>
-#include <vector>
+#include "includesAndStd.h"
 #include "pokemon.h"
 #include "pokeinfo.h"
 #include "proxymodel.h"
@@ -24,6 +22,8 @@ public:
     ~pokeChar();
     void createTable();
     vector<Pokemon> p;
+    void info(vector<Pokemon> p);
+    QString updDir;
 
 private slots:
     void on_mainButton_clicked();
@@ -42,6 +42,7 @@ private:
     Ui::pokeChar *ui;
     QStandardItemModel* model;
     proxyModel *proxyModel;
+    QStandardItemModel* infomod;
 
 };
 
